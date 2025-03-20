@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { supabase } from "../supabaseClient";  // No uses "@/supabaseClient"
+import { supabase } from "@/supabaseClient";  // Solo si está configurado en vite.config.js
+
 
 
 import DatePicker from "react-datepicker";
