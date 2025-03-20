@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { supabase } from "../supabaseClient";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
@@ -10,92 +11,49 @@ const BookingForm = () => {
   const selectedDate = watch("bookingDate");
   const [blockedDates, setBlockedDates] = useState([]);
 
-  // Función para obtener las fechas bloqueadas desde Make
+  // Obtener fechas bloqueadas desde Supabase
   useEffect(() => {
     const fetchBlockedDates = async () => {
-      try {
-        const response = await fetch("https://hook.eu2.make.com/7e3bhpfk2qkmgffcnyf48b2r5qv2cdmb");
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (!data.blockedDates || !Array.isArray(data.blockedDates)) {
-          throw new Error("Invalid JSON format received");
-        }
-
-        // Convertir fechas a objetos Date en la zona horaria local sin alterar la fecha
-        setBlockedDates(
-          data.blockedDates.map(dateStr => {
-            const parts = dateStr.split("-");
-            return new Date(parts[0], parts[1] - 1, parts[2]); // Año, Mes (0-index), Día
-          })
-        );
-
-      } catch (error) {
+      const { data, error } = await supabase.from("unavailable_dates").select("blocked_date");
+      if (error) {
         console.error("Error fetching blocked dates:", error);
+      } else {
+        setBlockedDates(data.map(d => new Date(d.blocked_date)));
       }
     };
-
     fetchBlockedDates();
   }, []);
 
-  // Función para formatear la fecha como yyyy-MM-dd
-  const formatDate = (date) => {
-    if (!date) return "";
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const day = date.getDate().toString().padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
-
-  // Enviar datos del formulario
+  // Manejar envío del formulario
   const onSubmit = async (data) => {
-    try {
-      // Asegurar que la fecha se envíe en formato "yyyy-MM-dd"
-      data.bookingDate = formatDate(selectedDate);
-  
-      const response = await fetch("https://hook.eu2.make.com/4owwf263k87mgnng9yhoeqofbbozqeki", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-  
-      // **Verificación de la respuesta antes de convertirla a JSON**
-      const textResponse = await response.text();
-      let result;
-      
-      try {
-        result = JSON.parse(textResponse); // Intentar convertir a JSON
-      } catch (jsonError) {
-        console.error("Invalid JSON response:", textResponse);
-        throw new Error("Invalid JSON response from server");
+    const formattedDate = data.bookingDate.toISOString().split("T")[0];
+
+    // Verificar si la fecha está bloqueada
+    if (blockedDates.some(date => date.toISOString().split("T")[0] === formattedDate)) {
+      toast.error("This date is unavailable. Please select another date.");
+      return;
+    }
+
+    // Enviar reserva a Supabase
+    const { error } = await supabase.from("reservations").insert([
+      {
+        booking_date: formattedDate,
+        voucher_number: data.voucherNumber,
+        full_name: data.fullName,
+        guests: data.guests,
+        kids: data.kids,
+        special_requests: data.specialRequests,
+        phone_number: data.phoneNumber
       }
-  
-      // **Manejo de fechas no disponibles**
-      if (result.status === "unavailable") {
-        setBlockedDates(result.blockedDates.map(dateStr => {
-          const parts = dateStr.split("-");
-          return new Date(parts[0], parts[1] - 1, parts[2]); // Año, Mes (0-index), Día
-        }));
-        toast.error("This date is unavailable. Please select another date.");
-        return;
-      }
-  
-      // **Confirmación de reserva**
-      if (response.ok) {
-        toast.success("Reservation submitted successfully!");
-      } else {
-        toast.error("Error submitting reservation.");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      toast.error("Network error. Try again.");
+    ]);
+
+    if (error) {
+      console.error("Error submitting reservation:", error);
+      toast.error("Error submitting reservation. Try again.");
+    } else {
+      toast.success("Reservation submitted successfully!");
     }
   };
-  
 
   return (
     <div className="container">
@@ -104,12 +62,12 @@ const BookingForm = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="form-group">
           <label>Booking Date</label>
-          <DatePicker 
+          <DatePicker
             selected={selectedDate}
             onChange={(date) => setValue("bookingDate", date)}
             dateFormat="yyyy-MM-dd"
             className="input"
-            excludeDates={blockedDates} // Bloquear fechas obtenidas de Make
+            excludeDates={blockedDates} // Bloquear fechas ocupadas
           />
           {errors.bookingDate && <span className="error">Date is required</span>}
         </div>
