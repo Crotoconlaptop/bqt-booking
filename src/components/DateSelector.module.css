@@ -1,0 +1,35 @@
+.container {
+    width: 100%;
+    max-width: 400px;
+    text-align: left;
+    margin-bottom: 1rem;
+  }
+  
+  .label {
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  
+  .dateInput {
+    width: 100%;
+    padding: 0.6rem;
+    background-color: #111827;
+    border: 1px solid #374151;
+    border-radius: 6px;
+    color: #F9FAFB;
+    font-size: 1rem;
+  }
+  
+  .dateInput:focus {
+    outline: none;
+    border-color: #10B981;
+  }
+  
+  .error {
+    color: #F87171;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+  }
+  
