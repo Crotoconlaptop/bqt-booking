@@ -22,9 +22,8 @@ export default function Home() {
 
       <DateSelector onDateChange={setSelectedDate} />
 
-      {selectedDate && (
-        <BookingForm selectedDate={selectedDate} />
-      )}
+      <BookingForm selectedDate={selectedDate} />
+
     </div>
   )
 }

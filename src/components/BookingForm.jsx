@@ -70,7 +70,7 @@ export default function BookingForm({ selectedDate, refreshData }) {
         <input
           type="number"
           min="1"
-          max="20"
+          max="288"
           required
           value={peopleCount}
           onChange={(e) => setPeopleCount(e.target.value)}

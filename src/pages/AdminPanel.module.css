@@ -75,3 +75,15 @@
     border-bottom: 1px solid #374151;
   }
   
+  .accordionToggle {
+    margin-top: 1rem;
+    background-color: #4b5563;
+    color: white;
+    padding: 0.5rem;
+    width: 100%;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
