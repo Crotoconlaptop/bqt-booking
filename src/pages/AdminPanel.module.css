@@ -1,89 +1,86 @@
 .container {
-    padding: 2rem;
-    max-width: 700px;
-    margin: 0 auto;
-    color: #F9FAFB;
-    background-color: #111827;
-    min-height: 100vh;
-  }
-  
-  .label {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 1rem;
-  }
-  
-  .input {
-    display: block;
-    width: 100%;
-    padding: 0.6rem;
-    margin-top: 0.4rem;
-    margin-bottom: 1rem;
-    background-color: #1f2937;
-    border: 1px solid #374151;
-    color: white;
-    border-radius: 6px;
-  }
-  
-  .form {
-    margin-top: 2rem;
-    padding: 1rem;
-    background-color: #1f2937;
-    border-radius: 8px;
-  }
-  
-  .button {
-    background-color: #10B981;
-    color: white;
-    padding: 0.75rem;
-    width: 100%;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  
-  .exportButton {
-    margin-top: 1rem;
-    background-color: #3b82f6;
-    color: white;
-    padding: 0.6rem;
-    border: none;
-    border-radius: 6px;
-    width: 100%;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .exportButton:hover {
-    background-color: #2563eb;
-  }
-  
-  .exportRange {
-    margin-top: 1rem;
-  }
-  
-  .list {
-    margin-top: 1rem;
-    padding-left: 1rem;
-    list-style: none;
-  }
-  
-  .list li {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #374151;
-  }
-  
-  .accordionToggle {
-    margin-top: 1rem;
-    background-color: #4b5563;
-    color: white;
-    padding: 0.5rem;
-    width: 100%;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  
+  padding: 2rem;
+  max-width: 720px;
+  margin: 2rem auto;
+  background-color: rgba(17, 24, 39, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  color: #F9FAFB;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.8s ease;
+}
+
+.label {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.input {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid #374151;
+  color: #F9FAFB;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.input::placeholder {
+  color: #9CA3AF;
+}
+
+.form {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: rgba(31, 41, 55, 0.8);
+  border-radius: 12px;
+}
+
+.button,
+.exportButton {
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.75rem;
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  margin-top: 1rem;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.button:hover,
+.exportButton:hover {
+  background-color: #2563eb;
+}
+
+.exportRange {
+  margin-top: 1.5rem;
+}
+
+.list {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 1rem;
+}
+
+.list li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #374151;
+}
+
+.accordionToggle {
+  background-color: #4b5563;
+  color: white;
+  padding: 0.5rem;
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}

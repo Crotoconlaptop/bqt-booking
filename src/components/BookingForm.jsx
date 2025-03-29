@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 import styles from './BookingForm.module.css'
+import { motion } from 'framer-motion'
 
 export default function BookingForm({ selectedDate, refreshData }) {
   const [name, setName] = useState('')
@@ -51,7 +52,13 @@ export default function BookingForm({ selectedDate, refreshData }) {
   }
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
+    <motion.form
+      className={styles.form}
+      onSubmit={handleSubmit}
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, ease: 'easeOut' }}
+    >
       <h2 className={styles.heading}>Book Your Spot</h2>
 
       <label className={styles.label}>
@@ -102,6 +109,6 @@ export default function BookingForm({ selectedDate, refreshData }) {
       <button type="submit" disabled={loading} className={styles.button}>
         {loading ? 'Booking...' : 'Book Now'}
       </button>
-    </form>
+    </motion.form>
   )
 }

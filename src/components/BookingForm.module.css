@@ -1,16 +1,40 @@
+.form {
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  max-width: 100%;
+  width: 100%;
+  margin: 0;
+  background: transparent; /* <- important */
+  backdrop-filter: none;
+  animation: none;
+  animation: fadeIn 0.8s ease-out;
+}
+
+.heading {
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #FACC15;
+}
+
 .label {
   display: flex;
   flex-direction: column;
   margin-bottom: 1rem;
   font-weight: bold;
   text-align: left;
+  color: #F9FAFB;
 }
 
 .input {
   padding: 0.6rem;
   font-size: 1rem;
   margin-top: 0.3rem;
-  border: 1px solid #ccc;
+  border: 1px solid #374151;
   border-radius: 6px;
   background-color: #111827;
   color: #F9FAFB;
@@ -19,4 +43,32 @@
 .input:focus {
   outline: none;
   border-color: #10B981;
+}
+
+.button {
+  background-color: #D97706;
+  color: white;
+  font-weight: bold;
+  padding: 0.75rem;
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #B45309;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
