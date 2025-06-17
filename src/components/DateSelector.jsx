@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import styles from './DateSelector.module.css';
 
-const API_URL = 'http://62.146.229.231:3100';
+const API_URL = 'https://ramadanbooking.duckdns.org';
 
 export default function DateSelector({ onDateChange }) {
   const [disabledDates, setDisabledDates] = useState([]);

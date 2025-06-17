@@ -2,7 +2,7 @@ import { useState } from 'react'
 import styles from './BookingForm.module.css'
 import { motion } from 'framer-motion'
 
-const API_URL = 'http://62.146.229.231:3100';
+const API_URL = 'https://ramadanbooking.duckdns.org';
 
 export default function BookingForm({ selectedDate, refreshData }) {
   const [name, setName] = useState('')

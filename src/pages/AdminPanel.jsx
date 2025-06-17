@@ -4,7 +4,7 @@ import styles from './AdminPanel.module.css';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
-const API_URL = 'http://62.146.229.231:3100';
+const API_URL = 'https://ramadanbooking.duckdns.org';
 
 export default function AdminPanel() {
   const [selectedDate, setSelectedDate] = useState('');
