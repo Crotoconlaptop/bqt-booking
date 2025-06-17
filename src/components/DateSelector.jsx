@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { supabase } from '../supabaseClient';
 import styles from './DateSelector.module.css';
+
+const API_URL = 'http://62.146.229.231:3100';
 
 export default function DateSelector({ onDateChange }) {
   const [disabledDates, setDisabledDates] = useState([]);
@@ -9,26 +10,13 @@ export default function DateSelector({ onDateChange }) {
 
   useEffect(() => {
     const fetchDates = async () => {
-      const { data, error } = await supabase
-        .from('bookings')
-        .select('date, people_count');
-
-      if (error) {
-        console.error('Error fetching bookings', error);
-        return;
+      try {
+        const res = await fetch(`${API_URL}/bookings/full-dates`);
+        const data = await res.json();
+        setDisabledDates(data);
+      } catch (error) {
+        console.error('Error fetching full dates', error);
       }
-
-      const dateMap = {};
-
-      data.forEach(({ date, people_count }) => {
-        dateMap[date] = (dateMap[date] || 0) + people_count;
-      });
-
-      const fullDates = Object.entries(dateMap)
-        .filter(([_, count]) => count >= 288)
-        .map(([date]) => date);
-
-      setDisabledDates(fullDates);
     };
 
     fetchDates();

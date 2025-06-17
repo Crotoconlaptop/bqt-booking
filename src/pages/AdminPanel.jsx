@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '../supabaseClient';
 import styles from './AdminPanel.module.css';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+
+const API_URL = 'http://62.146.229.231:3100';
 
 export default function AdminPanel() {
   const [selectedDate, setSelectedDate] = useState('');
@@ -23,25 +24,23 @@ export default function AdminPanel() {
 
   const fetchBookings = async () => {
     setLoading(true);
-    let query = supabase.from('bookings').select('*').order('date', { ascending: true });
+    try {
+      let url = `${API_URL}/bookings`;
+      if (searchQuery.trim()) {
+        url = `${API_URL}/bookings/search?q=${encodeURIComponent(searchQuery)}`;
+      } else if (selectedDate) {
+        url = `${API_URL}/bookings?date=${selectedDate}`;
+      }
 
-    if (searchQuery.trim()) {
-      query = query.or(`customer_name.ilike.%${searchQuery}%,phone.ilike.%${searchQuery}%`);
-    } else if (selectedDate) {
-      query = query.eq('date', selectedDate);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
+      const res = await fetch(url);
+      const data = await res.json();
+      setBookings(data);
+      setFilteredBookings(data);
+    } catch (error) {
       console.error('Error fetching bookings', error);
       setBookings([]);
       setFilteredBookings([]);
-    } else {
-      setBookings(data);
-      setFilteredBookings(data);
     }
-
     setLoading(false);
   };
 
@@ -62,24 +61,29 @@ export default function AdminPanel() {
       return;
     }
 
-    const { error } = await supabase.from('bookings').insert([
-      {
-        customer_name: name,
-        date: selectedDate,
-        people_count: parseInt(count),
-        phone,
-        allergies,
-      },
-    ]);
+    try {
+      const res = await fetch(`${API_URL}/bookings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer_name: name,
+          date: selectedDate,
+          people_count: parseInt(count),
+          phone,
+          allergies,
+        }),
+      });
 
-    if (error) {
-      alert('Error adding booking');
-    } else {
+      if (!res.ok) throw new Error('Failed to add booking');
+
       setName('');
       setCount(1);
       setPhone('');
       setAllergies('');
       fetchBookings();
+    } catch (error) {
+      console.error(error);
+      alert('Error adding booking');
     }
   };
 
@@ -110,33 +114,32 @@ export default function AdminPanel() {
   const exportRangeToExcel = async () => {
     if (!exportStart || !exportEnd) return alert('Select both start and end dates');
 
-    const { data, error } = await supabase
-      .from('bookings')
-      .select('*')
-      .gte('date', exportStart)
-      .lte('date', exportEnd);
+    try {
+      const res = await fetch(`${API_URL}/bookings/range?start=${exportStart}&end=${exportEnd}`);
+      const data = await res.json();
 
-    if (error || data.length === 0) {
-      alert('No bookings found in range');
-      return;
+      if (!data.length) return alert('No bookings found in range');
+
+      const formatted = data.map((b) => ({
+        Date: b.date,
+        Name: b.customer_name,
+        Guests: b.people_count,
+        Phone: b.phone || '',
+        Allergies: b.allergies || '',
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(formatted);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Range Reservations');
+
+      const fileName = `reservations-${exportStart}_to_${exportEnd}.xlsx`;
+      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+      saveAs(blob, fileName);
+    } catch (error) {
+      console.error(error);
+      alert('Export failed');
     }
-
-    const formatted = data.map((b) => ({
-      Date: b.date,
-      Name: b.customer_name,
-      Guests: b.people_count,
-      Phone: b.phone || '',
-      Allergies: b.allergies || '',
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(formatted);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Range Reservations');
-
-    const fileName = `reservations-${exportStart}_to_${exportEnd}.xlsx`;
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    saveAs(blob, fileName);
   };
 
   return (

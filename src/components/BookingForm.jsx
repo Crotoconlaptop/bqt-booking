@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { supabase } from '../supabaseClient'
 import styles from './BookingForm.module.css'
 import { motion } from 'framer-motion'
+
+const API_URL = 'http://62.146.229.231:3100';
 
 export default function BookingForm({ selectedDate, refreshData }) {
   const [name, setName] = useState('')
@@ -14,38 +15,42 @@ export default function BookingForm({ selectedDate, refreshData }) {
     e.preventDefault()
     setLoading(true)
 
-    const { data: bookings, error } = await supabase
-      .from('bookings')
-      .select('people_count')
-      .eq('date', selectedDate)
+    try {
+      const res = await fetch(`${API_URL}/bookings/summary?date=${selectedDate}`)
+      const summary = await res.json()
+      const totalPeople = summary.total || 0
 
-    const totalPeople = bookings?.reduce((acc, b) => acc + b.people_count, 0) || 0
+      if (totalPeople + parseInt(peopleCount) > 288) {
+        alert('This date is fully booked! Please choose another date.')
+        setLoading(false)
+        return
+      }
 
-    if (totalPeople + parseInt(peopleCount) > 288) {
-      alert('This date is fully booked! Please choose another date.')
-      setLoading(false)
-      return
-    }
+      const insertRes = await fetch(`${API_URL}/bookings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer_name: name,
+          date: selectedDate,
+          people_count: parseInt(peopleCount),
+          phone,
+          allergies
+        })
+      })
 
-    const { error: insertError } = await supabase.from('bookings').insert([
-      {
-        customer_name: name,
-        date: selectedDate,
-        people_count: parseInt(peopleCount),
-        phone,
-        allergies
-      },
-    ])
+      if (!insertRes.ok) {
+        throw new Error('Failed to save booking')
+      }
 
-    if (insertError) {
-      alert('Error saving booking')
-    } else {
       alert('Booking confirmed!')
       setName('')
       setPhone('')
       setAllergies('')
       setPeopleCount(1)
       refreshData()
+    } catch (error) {
+      console.error(error)
+      alert('Error saving booking')
     }
 
     setLoading(false)
